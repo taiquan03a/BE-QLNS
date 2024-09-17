@@ -5,6 +5,8 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersModule } from './users/users.module';
 import { User } from './users/entities/user.entity';
+import { RoleModule } from './role/role.module';
+import { Role } from './role/entities/role.entity';
 
 @Module({
   imports: [
@@ -13,17 +15,18 @@ import { User } from './users/entities/user.entity';
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
-        type: 'mysql',
+        type: 'postgres',
         host: configService.get<string>('DB_HOST'),
         port: configService.get<number>('DB_PORT'),
         username: configService.get<string>('DB_USERNAME'),
         password: configService.get<string>('DB_PASSWORD'),
         database: configService.get<string>('DB_DATABASE'),
-        entities: [User], // Cấu hình các entity
-        synchronize: true, // Đồng bộ cấu trúc database tự động, chỉ dùng trong phát triển
+        entities: [User, Role], // Cấu hình các entity
+        synchronize: false, // Đồng bộ cấu trúc database tự động, chỉ dùng trong phát triển
       }),
     }),
     UsersModule,
+    RoleModule,
   ],
   controllers: [AppController],
   providers: [AppService],

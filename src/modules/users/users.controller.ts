@@ -4,6 +4,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { Paginate, Paginated, PaginateQuery } from 'nestjs-paginate';
 import { User } from './entities/user.entity';
+import { Public } from 'src/auths/passport/public';
 
 @Controller('users')
 export class UsersController {
@@ -15,13 +16,14 @@ export class UsersController {
   }
 
   @Get()
+  @Public()
   findAll(@Paginate() query: PaginateQuery): Promise<Paginated<User>> {
     return this.usersService.findAll(query);
   }
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.usersService.findOne(+id);
+    return "id"
   }
 
   @Patch(':id')

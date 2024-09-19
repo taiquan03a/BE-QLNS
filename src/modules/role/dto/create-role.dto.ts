@@ -5,4 +5,6 @@ export class CreateRoleDto {
     code: string;
     @IsNotEmpty({ message: "not empty" })
     name: string;
+    @IsNotEmpty({ message: "not empty" })
+    permissionId: number[]
 }

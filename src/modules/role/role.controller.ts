@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, HttpException, Put } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, HttpException, Put, Res, HttpStatus, Request } from '@nestjs/common';
 import { RoleService } from './role.service';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
@@ -11,8 +11,8 @@ export class RoleController {
   constructor(private readonly roleService: RoleService) { }
 
   @Post()
-  create(@Body() createRoleDto: CreateRoleDto) {
-    return this.roleService.create(createRoleDto);
+  create(@Body() createRoleDto: CreateRoleDto, @Request() req) {
+    return this.roleService.create(createRoleDto, req.user);
   }
 
   @Get()
@@ -21,8 +21,19 @@ export class RoleController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.roleService.findOne(+id);
+  async findOne(@Param('id') id: string, @Res() res) {
+    const role = await this.roleService.findOne(+id);
+    if (!role) {
+      return res.status(HttpStatus.NOT_FOUND).json({
+        status: HttpStatus.NOT_FOUND,
+        message: "NOT_FOUND"
+      });
+    }
+    return res.status(HttpStatus.OK).json({
+      status: HttpStatus.OK,
+      message: "OK",
+      data: role
+    });
   }
 
   @Put(':id')

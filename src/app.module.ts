@@ -9,11 +9,12 @@ import { RoleModule } from './modules/role/role.module';
 import { Role } from './modules/role/entities/role.entity';
 import { Modules } from "src/modules/modules/entities/modules.entity";
 import { AuthsModule } from './auths/auths.module';
-import { APP_GUARD } from '@nestjs/core';
+import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { JwtAuthGuard } from './auths/passport/jwt-auth.guard';
 import { ModulesModule } from './modules/modules/modules.module';
 import { PermissionModule } from './modules/permission/permission.module';
 import { Permission } from './modules/permission/entities/permission.entity';
+import { TransformInterceptor } from './core/transform.interceptor';
 
 @Module({
   imports: [
@@ -45,6 +46,10 @@ import { Permission } from './modules/permission/entities/permission.entity';
       provide: APP_GUARD,
       useClass: JwtAuthGuard,
     },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: TransformInterceptor,
+    }
   ],
 })
 export class AppModule { }

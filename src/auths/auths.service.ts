@@ -1,7 +1,8 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { UsersService } from 'src/modules/users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import { User } from 'src/modules/users/entities/user.entity';
+import { STATUS_CODES } from 'http';
 
 @Injectable()
 export class AuthsService {
@@ -11,7 +12,7 @@ export class AuthsService {
   ) { }
   async signIn(email: string, password: string): Promise<any> {
     const check = await this.usersService.authSignIn(email, password);
-    if (!check) throw new UnauthorizedException("Tài khoản mật khẩu không chính xác.");
+    if (!check) throw new BadRequestException();
     const payload = { email: email };
     return {
       access_token: await this.jwtService.signAsync(payload),

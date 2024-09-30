@@ -9,6 +9,7 @@ import { Role } from '../role/entities/role.entity';
 import { UserType } from './enum/user.enum';
 import * as bcrypt from 'bcrypt';
 import { ExceptionsHandler } from '@nestjs/core/exceptions/exceptions-handler';
+import { Permission } from '../permission/entities/permission.entity';
 
 @Injectable()
 export class UsersService {
@@ -16,7 +17,9 @@ export class UsersService {
     @InjectRepository(User)
     private userRepository: Repository<User>,
     @InjectRepository(Role)
-    private readonly roleRopository: Repository<Role>
+    private readonly roleRopository: Repository<Role>,
+    @InjectRepository(Permission)
+    private readonly permissionRepository: Repository<Permission>
   ) { }
 
   async create(createUserDto: CreateUserDto) {
@@ -48,6 +51,7 @@ export class UsersService {
     return paginate(query, this.userRepository, {
       sortableColumns: ['id', 'code', 'email', 'phoneNumber'],
       nullSort: 'last',
+      defaultLimit: 5,
       defaultSortBy: [['id', 'DESC']],
       searchableColumns: ['code', 'email', 'phoneNumber'],
       select: [
@@ -100,4 +104,19 @@ export class UsersService {
     const idStr = id.toString().padStart(3, '0');
     return `${prefix}${idStr}`;
   }
+  async findPermissionByUser(userId: number) {
+    const user: User = await this.userRepository.findOne({ where: { id: userId }, relations: ['roles'] })
+    const permissions = [];
+    for (const role of user.roles) {
+      const permission: Permission[] = await this.permissionRepository.findBy({ role: role });
+      for (const it of permission) {
+        permissions.push(it.code);
+      }
+    }
+    return permissions;
+  }
+  async findOne(id: number): Promise<User> {
+    return await this.userRepository.findOne({ where: { id } });
+  }
+
 }

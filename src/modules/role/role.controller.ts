@@ -16,24 +16,16 @@ export class RoleController {
   }
 
   @Get()
-  findAll(@Paginate() query: PaginateQuery): Promise<Paginated<Role>> {
+  async findAll(@Paginate() query: PaginateQuery): Promise<Paginated<Role>> {
+    const check = await this.roleService.findAll(query);
+    console.log(check);
     return this.roleService.findAll(query);
   }
 
   @Get(':id')
-  async findOne(@Param('id') id: string, @Res() res) {
-    const role = await this.roleService.findOne(+id);
-    if (!role) {
-      return res.status(HttpStatus.NOT_FOUND).json({
-        status: HttpStatus.NOT_FOUND,
-        message: "NOT_FOUND"
-      });
-    }
-    return res.status(HttpStatus.OK).json({
-      status: HttpStatus.OK,
-      message: "OK",
-      data: role
-    });
+  async findOne(@Param('id') id: string) {
+    console.log(id);
+    return this.roleService.findOne(+id);
   }
 
   @Put(':id')

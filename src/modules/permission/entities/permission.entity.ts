@@ -29,6 +29,6 @@ export class Permission {
     @JoinColumn({ name: 'module_id' })
     module: Modules;
 
-    @ManyToMany(() => Role, roles => roles.permissions)
-    roles?: Role[];
+    @ManyToMany(() => Role, role => role.permission)
+    role?: Role[];
 }

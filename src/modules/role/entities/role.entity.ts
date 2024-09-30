@@ -1,11 +1,12 @@
-import { permission } from 'process';
 import { Permission } from 'src/modules/permission/entities/permission.entity';
 import { User } from 'src/modules/users/entities/user.entity';
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToMany, JoinTable } from 'typeorm';
 
 @Entity('role')
 export class Role {
+    constructor() {
 
+    }
     @PrimaryGeneratedColumn('increment')
     id: number;
 
@@ -30,7 +31,7 @@ export class Role {
     @ManyToMany(() => User, user => user.roles,)
     users?: User[];
 
-    @ManyToMany(() => Permission, permission => permission.roles)
+    @ManyToMany(() => Permission, permission => permission.role)
     @JoinTable({
         name: 'permission_role',
         joinColumn: {
@@ -42,5 +43,5 @@ export class Role {
             referencedColumnName: "id"
         }
     })
-    permissions?: Permission[];
+    permission?: Permission[];
 }

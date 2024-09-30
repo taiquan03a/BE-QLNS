@@ -1,12 +1,16 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { Paginate, Paginated, PaginateQuery } from 'nestjs-paginate';
 import { User } from './entities/user.entity';
 import { Public } from 'src/auths/passport/public';
+import { AuthorizationGuard } from 'src/auths/guard/authorization.guard';
+import { Permissions } from 'src/decorator/customize';
+
 
 @Controller('users')
+@UseGuards(AuthorizationGuard)
 export class UsersController {
   constructor(private readonly usersService: UsersService) { }
 
@@ -16,7 +20,7 @@ export class UsersController {
   }
 
   @Get()
-  @Public()
+  @Permissions("ACC_VIEW")
   findAll(@Paginate() query: PaginateQuery): Promise<Paginated<User>> {
     return this.usersService.findAll(query);
   }

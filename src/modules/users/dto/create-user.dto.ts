@@ -2,8 +2,7 @@ import { IsEmail, IsEmpty, IsNotEmpty } from "class-validator";
 import { IsNull } from "typeorm";
 
 export class CreateUserDto {
-    @IsEmpty()
-    avatar: string;
+    avatar: Express.Multer.File;
     @IsEmail()
     email: string;
     @IsNotEmpty()

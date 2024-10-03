@@ -19,16 +19,14 @@ export class RoleService {
   ) { }
   async create(createRoleDto: CreateRoleDto, user: any) {
     const checkCode = await this.roleRepository.existsBy({ code: createRoleDto.code })
-    const roleCheck = await this.roleRepository.findOneBy({ code: createRoleDto.code })
     if (checkCode) throw new BadRequestException("Mã code đã bị trùng.")
-    const permissionList = await this.permissionRepository.findByIds(createRoleDto.permissionId)
-    const role = {
-      code: createRoleDto.code,
-      name: createRoleDto.name,
-      create_at: new Date(),
-      create_by: user.username,
-      permissions: permissionList
-    }
+    const permissionList: Permission[] = await this.permissionRepository.findByIds(createRoleDto.permissionId)
+    const role: Role = new Role;
+    role.code = createRoleDto.code;
+    role.name = createRoleDto.name;
+    role.create_at = new Date();
+    role.create_by = user.username;
+    role.permission = permissionList;
     return this.roleRepository.save(role);
   }
   findAll(query: PaginateQuery): Promise<Paginated<Role>> {
@@ -69,17 +67,29 @@ export class RoleService {
     throw new NotFoundException("NOT_FOUND_ROLE");
   }
 
-  async update(id: number, updateRoleDto: UpdateRoleDto): Promise<any> {
-    let role = await this.roleRepository.findOne({ where: { id } })
-    if (!role) return "NOT FOUND"
+  async update(id: number, updateRoleDto: UpdateRoleDto, user: any): Promise<any> {
+    let role: Role = await this.roleRepository.findOne({ where: { id } })
+    if (!role) throw new NotFoundException();
+    if (role.code != updateRoleDto.code) {
+      const checkCode = await this.roleRepository.existsBy({ code: updateRoleDto.code })
+      if (checkCode) throw new BadRequestException("Mã code đã bị trùng.")
+    }
+
+    const permissionList: Permission[] = await this.permissionRepository.findByIds(updateRoleDto.permissionId)
     role.name = updateRoleDto.name;
     role.code = updateRoleDto.code;
     role.update_at = new Date();
-    role.update_by = "ADMIN";
+    role.update_by = user.username;
+    role.permission = permissionList;
     return this.roleRepository.save(role);
   };
-  async delete(id: number): Promise<void> {
-    await this.roleRepository.delete(id);
+  async delete(id: number): Promise<any> {
+    const role: Role = await this.roleRepository.findOne({ where: { id } });
+    if (role == null) throw new NotFoundException();
+    try {
+      await this.roleRepository.delete(id);
+    } catch (e) {
+      throw new BadRequestException("Delete role fail!");
+    }
   }
-
 }

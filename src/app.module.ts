@@ -16,6 +16,7 @@ import { PermissionModule } from './modules/permission/permission.module';
 import { Permission } from './modules/permission/entities/permission.entity';
 import { TransformInterceptor } from './core/transform.interceptor';
 import { AuthorizationGuard } from './auths/guard/authorization.guard';
+import { CloudinaryModule } from './cloudinary/cloudinary.module';
 
 @Module({
   imports: [
@@ -39,6 +40,7 @@ import { AuthorizationGuard } from './auths/guard/authorization.guard';
     AuthsModule,
     ModulesModule,
     PermissionModule,
+    CloudinaryModule,
   ],
   controllers: [AppController],
   providers: [

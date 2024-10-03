@@ -1,4 +1,4 @@
-import { BadRequestException, HttpCode, Injectable } from '@nestjs/common';
+import { BadRequestException, HttpCode, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -10,6 +10,7 @@ import { UserType } from './enum/user.enum';
 import * as bcrypt from 'bcrypt';
 import { ExceptionsHandler } from '@nestjs/core/exceptions/exceptions-handler';
 import { Permission } from '../permission/entities/permission.entity';
+import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 
 @Injectable()
 export class UsersService {
@@ -19,10 +20,12 @@ export class UsersService {
     @InjectRepository(Role)
     private readonly roleRopository: Repository<Role>,
     @InjectRepository(Permission)
-    private readonly permissionRepository: Repository<Permission>
+    private readonly permissionRepository: Repository<Permission>,
+    private readonly cloudinaryService: CloudinaryService,
   ) { }
 
-  async create(createUserDto: CreateUserDto) {
+  async create(createUserDto: CreateUserDto, avatar: Express.Multer.File, userLogin: any) {
+    console.log(createUserDto)
     const saltOrRounds = 10;
     const email = createUserDto.email;
     const existsEmail = await this.userRepository.findOne({ where: { email: email } });
@@ -30,8 +33,10 @@ export class UsersService {
     if (existsEmail != null) {
       throw new BadRequestException("Email đã tồn tại trong hệ thống.");
     }
+    const res = await this.cloudinaryService.uploadFile(avatar, 'Avatar');
+    console.log(res.url);
     const user = {
-      avatar: createUserDto.avatar,
+      avatar: res.url,
       // code: this.generateCode(2),
       email: createUserDto.email,
       password: await bcrypt.hash(createUserDto.password, saltOrRounds),
@@ -40,6 +45,9 @@ export class UsersService {
       dateOfBirth: createUserDto.dateOfBirth,
       phoneNumber: createUserDto.phoneNumber,
       userType: UserType.QUANTRI,
+      createAt: new Date(),
+      createBy: userLogin.username,
+      status: 1,
       roles: [
         await this.roleRopository.findOne({ where: { code: "QUANTRI" } })
       ]
@@ -85,8 +93,31 @@ export class UsersService {
     return user;
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+  async update(id: number, updateUserDto: UpdateUserDto, avatar: Express.Multer.File, userLogin: any) {
+    const user: User = await this.userRepository.findOne({ where: { id } });
+    const saltOrRounds = 10;
+    const email = updateUserDto.email;
+    if (updateUserDto.email != user.email) {
+      const existsEmail = await this.userRepository.findOne({ where: { email: email } });
+
+      console.log(existsEmail)
+      if (existsEmail != null) {
+        throw new BadRequestException("Email đã tồn tại trong hệ thống.");
+      }
+    }
+
+    const res = await this.cloudinaryService.uploadFile(avatar, 'Avatar');
+    console.log(res.url);
+    user.avatar = res.url;
+    user.email = updateUserDto.email;
+    user.firstName = updateUserDto.firstName;
+    user.lastName = updateUserDto.lastName;
+    user.dateOfBirth = updateUserDto.dateOfBirth;
+    user.phoneNumber = updateUserDto.phoneNumber;
+    user.userType = UserType.QUANTRI;
+    user.updateAt = new Date();
+    user.updateBy = userLogin.username;
+    return this.userRepository.save(user);
   }
 
   remove(id: number) {
@@ -118,5 +149,20 @@ export class UsersService {
   async findOne(id: number): Promise<User> {
     return await this.userRepository.findOne({ where: { id } });
   }
-
+  async active(id: number): Promise<User> {
+    const user: User = await this.userRepository.findOne({ where: { id } });
+    if (user == null) throw new NotFoundException();
+    if (user.status != null) {
+      user.status = 1 - user.status;
+    }
+    else {
+      user.status = 1;
+    }
+    try {
+      this.userRepository.save(user);
+    } catch (e) {
+      throw new BadRequestException("Fail!.");
+    }
+    return user;
+  }
 }

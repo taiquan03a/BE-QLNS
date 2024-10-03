@@ -55,7 +55,7 @@ export class User {
     updateBy: string;
 
     @Column({ type: 'bit', default: 1 })
-    status: boolean;
+    status: number;
 
     @ManyToMany(() => Role, role => role.users)
     @JoinTable({

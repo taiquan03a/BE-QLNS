@@ -29,8 +29,8 @@ export class RoleController {
   }
 
   @Put(':id')
-  update(@Param('id') id: string, @Body() updateRoleDto: UpdateRoleDto) {
-    return this.roleService.update(+id, updateRoleDto);
+  update(@Param('id') id: string, @Body() updateRoleDto: UpdateRoleDto, @Request() req) {
+    return this.roleService.update(+id, updateRoleDto, req.user);
   }
 
   @Delete(':id')

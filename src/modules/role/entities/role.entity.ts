@@ -4,9 +4,6 @@ import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateCol
 
 @Entity('role')
 export class Role {
-    constructor() {
-
-    }
     @PrimaryGeneratedColumn('increment')
     id: number;
 

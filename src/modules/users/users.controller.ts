@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, UseInterceptors, UploadedFile, BadRequestException, Request, Put } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -7,20 +7,37 @@ import { User } from './entities/user.entity';
 import { Public } from 'src/auths/passport/public';
 import { AuthorizationGuard } from 'src/auths/guard/authorization.guard';
 import { Permissions } from 'src/decorator/customize';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 
 
 @Controller('users')
 @UseGuards(AuthorizationGuard)
 export class UsersController {
-  constructor(private readonly usersService: UsersService) { }
+  constructor(
+    private readonly usersService: UsersService,
+    private readonly cloudinaryService: CloudinaryService,
+  ) { }
 
   @Post()
-  create(@Body() createUserDto: CreateUserDto) {
-    return this.usersService.create(createUserDto);
+  @UseInterceptors(FileInterceptor('avatar',
+    {
+      fileFilter: (req, file, callback) => {
+        if (!file.mimetype.match(/\/(jpg|jpeg|png)$/)) {
+          return callback(new BadRequestException('Only image files are allowed!'), false);
+        }
+        callback(null, true);
+      },
+      limits: {
+        fileSize: 1024 * 1024 * 50, // Giới hạn kích thước file 5MB
+      },
+    }
+  ))
+  create(@Body() createUserDto: CreateUserDto, @UploadedFile() avatar: Express.Multer.File, @Request() req) {
+    return this.usersService.create(createUserDto, avatar, req.user);
   }
 
   @Get()
-  @Permissions("ACC_VIEW")
   findAll(@Paginate() query: PaginateQuery): Promise<Paginated<User>> {
     return this.usersService.findAll(query);
   }
@@ -30,13 +47,35 @@ export class UsersController {
     return "id"
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.usersService.update(+id, updateUserDto);
+  @Put(':id')
+  @UseInterceptors(FileInterceptor('avatar',
+    {
+      fileFilter: (req, file, callback) => {
+        if (!file.mimetype.match(/\/(jpg|jpeg|png)$/)) {
+          return callback(new BadRequestException('Only image files are allowed!'), false);
+        }
+        callback(null, true);
+      },
+      limits: {
+        fileSize: 1024 * 1024 * 50, // Giới hạn kích thước file 5MB
+      },
+    }
+  ))
+  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto, @UploadedFile() avatar: Express.Multer.File, @Request() req) {
+    return this.usersService.update(+id, updateUserDto, avatar, req.user);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.usersService.remove(+id);
+  }
+  @Post(':id')
+  active(@Param('id') id: number) {
+    return this.usersService.active(id);
+  }
+  @Post('/upload/hihi')
+  @UseInterceptors(FileInterceptor('file'))
+  uploadImage(@UploadedFile() file: Express.Multer.File) {
+    return this.cloudinaryService.uploadFile(file, 'Avatar');
   }
 }

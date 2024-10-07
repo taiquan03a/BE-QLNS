@@ -3,5 +3,5 @@ import { CategoryDto } from "src/modules/category/category.dto";
 
 export class CreateDistrictDto extends CategoryDto {
     @IsNotEmpty()
-    provinceId: number;
+    id: number;
 }

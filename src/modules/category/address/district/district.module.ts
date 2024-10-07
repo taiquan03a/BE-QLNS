@@ -9,9 +9,9 @@ import { Province } from '../province/entities/province.entity';
 @Module({
   imports: [
     TypeOrmModule.forFeature([District, Province]),
-
   ],
   controllers: [DistrictController],
   providers: [DistrictService, ProvinceService],
+  exports: [DistrictService]
 })
 export class DistrictModule { }

@@ -1,20 +1,22 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Request, Put } from '@nestjs/common';
 import { WardService } from './ward.service';
 import { CreateWardDto } from './dto/create-ward.dto';
 import { UpdateWardDto } from './dto/update-ward.dto';
+import { Paginate, Paginated, PaginateQuery } from 'nestjs-paginate';
+import { Ward } from './entities/ward.entity';
 
-@Controller('ward')
+@Controller('address/ward')
 export class WardController {
-  constructor(private readonly wardService: WardService) {}
+  constructor(private readonly wardService: WardService) { }
 
   @Post()
-  create(@Body() createWardDto: CreateWardDto) {
-    return this.wardService.create(createWardDto);
+  create(@Body() createWardDto: CreateWardDto, @Request() req) {
+    return this.wardService.create(createWardDto, req.user);
   }
 
-  @Get()
-  findAll() {
-    return this.wardService.findAll();
+  @Get('getByDistrict/:districtId')
+  async findAll(@Paginate() query: PaginateQuery, @Param('districtId') districtId: number): Promise<Paginated<Ward>> {
+    return this.wardService.findAll(query, districtId);
   }
 
   @Get(':id')
@@ -22,9 +24,9 @@ export class WardController {
     return this.wardService.findOne(+id);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateWardDto: UpdateWardDto) {
-    return this.wardService.update(+id, updateWardDto);
+  @Put(':id')
+  update(@Param('id') id: string, @Body() updateWardDto: UpdateWardDto, @Request() req) {
+    return this.wardService.update(+id, updateWardDto, req.user);
   }
 
   @Delete(':id')

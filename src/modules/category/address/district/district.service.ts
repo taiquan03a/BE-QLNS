@@ -24,7 +24,7 @@ export class DistrictService {
     district.description = createDistrictDto.description;
     district.create_by = user.email;
     district.create_at = new Date();
-    district.province = await this.provinceService.findOne(createDistrictDto.provinceId);
+    district.province = await this.provinceService.findOne(createDistrictDto.id);
     try {
       return await this.districtRepository.save(district);
     } catch (e) {
@@ -38,9 +38,8 @@ export class DistrictService {
       throw new NotFoundException('Province not found.');
     }
     return paginate(query, this.districtRepository, {
-      //relations: ['province'],                  // Đảm bảo join với province
       where: {
-        province: province,                     // Điều kiện lọc theo tỉnh
+        province: province,
       },
       sortableColumns: ['id', 'name'],
       searchableColumns: ['id', 'name'],
@@ -69,12 +68,24 @@ export class DistrictService {
     }
     return districtDtos;
   }
-  findOne(id: number) {
-    return `This action returns a #${id} district`;
+  async findOne(id: number) {
+    console.log(await this.districtRepository.findOne({ where: { id } }));
+    return await this.districtRepository.findOne({ where: { id } });
   }
 
-  update(id: number, updateDistrictDto: UpdateDistrictDto) {
-    return `This action updates a #${id} district`;
+  async update(id: number, updateDistrictDto: UpdateDistrictDto, user: UserLogin) {
+    const district = await this.districtRepository.findOne({ where: { id } });
+    if (district == null) throw new NotFoundException();
+    district.name = updateDistrictDto.name;
+    district.description = updateDistrictDto.description;
+    district.update_by = user.email;
+    district.update_at = new Date();
+    district.province = await this.provinceService.findOne(updateDistrictDto.id);
+    try {
+      return await this.districtRepository.save(district);
+    } catch (e) {
+      throw new BadRequestException("Fail!!");
+    }
   }
 
   remove(id: number) {

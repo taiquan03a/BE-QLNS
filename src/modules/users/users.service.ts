@@ -56,7 +56,43 @@ export class UsersService {
   }
 
   findAll(query: PaginateQuery): Promise<Paginated<User>> {
+    const userAdmin = this.userRepository.findBy({ userType: UserType.QUANTRI })
     return paginate(query, this.userRepository, {
+      where: {
+        userType: UserType.QUANTRI,
+      },
+      sortableColumns: ['id', 'code', 'email', 'phoneNumber'],
+      nullSort: 'last',
+      defaultLimit: 5,
+      defaultSortBy: [['id', 'DESC']],
+      searchableColumns: ['code', 'email', 'phoneNumber'],
+      select: [
+        'id',
+        'avatar',
+        'code', 'email',
+        'password',
+        'firstName',
+        'lastName',
+        'dateOfBirth',
+        'phoneNumber',
+        'userType',
+        'createAt',
+        'createBy',
+        'updateAt',
+        'updateBy',
+        'status'
+      ],
+      filterableColumns: {
+        name: [FilterOperator.EQ, FilterSuffix.NOT],
+        age: true,
+      },
+    })
+  }
+  findAllByUser(query: PaginateQuery): Promise<Paginated<User>> {
+    return paginate(query, this.userRepository, {
+      where: {
+        userType: UserType.NHANVIEN,
+      },
       sortableColumns: ['id', 'code', 'email', 'phoneNumber'],
       nullSort: 'last',
       defaultLimit: 5,
@@ -163,6 +199,12 @@ export class UsersService {
     } catch (e) {
       throw new BadRequestException("Fail!.");
     }
+    return user;
+  }
+  async getDetailByUser(id: number): Promise<User> {
+    const user = await this.userRepository.findOne({ where: { id } });
+    if (user == null) throw new NotFoundException("user not found.");
+    if (user.userType == UserType.QUANTRI) throw new BadRequestException("user detail fail.");
     return user;
   }
 }

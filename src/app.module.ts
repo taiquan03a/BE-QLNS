@@ -35,6 +35,10 @@ import { WardModule } from './modules/category/address/ward/ward.module';
 import { Province } from './modules/category/address/province/entities/province.entity';
 import { District } from './modules/category/address/district/entities/district.entity';
 import { Ward } from './modules/category/address/ward/entities/ward.entity';
+import { ProfileModule } from './modules/profile/profile.module';
+import { ExperiencesModule } from './modules/experiences/experiences.module';
+import { FamiliesModule } from './modules/families/families.module';
+import { Profile } from './modules/profile/entities/profile.entity';
 
 @Module({
   imports: [
@@ -49,7 +53,7 @@ import { Ward } from './modules/category/address/ward/entities/ward.entity';
         username: configService.get<string>('DB_USERNAME'),
         password: configService.get<string>('DB_PASSWORD'),
         database: configService.get<string>('DB_DATABASE'),
-        entities: [User, Role, Permission, Modules, Degree, Major, Ethnicity, Relationship, EducationType, School, Province, District, Ward], // Cấu hình các entity
+        entities: [User, Role, Permission, Modules, Degree, Major, Ethnicity, Relationship, EducationType, School, Province, District, Ward, Profile], // Cấu hình các entity
         synchronize: false, // Đồng bộ cấu trúc database tự động, chỉ dùng trong phát triển
       }),
     }),
@@ -68,6 +72,9 @@ import { Ward } from './modules/category/address/ward/entities/ward.entity';
     ProvinceModule,
     DistrictModule,
     WardModule,
+    ProfileModule,
+    ExperiencesModule,
+    FamiliesModule,
   ],
   controllers: [AppController],
   providers: [

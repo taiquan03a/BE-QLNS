@@ -41,6 +41,10 @@ export class UsersController {
   findAll(@Paginate() query: PaginateQuery): Promise<Paginated<User>> {
     return this.usersService.findAll(query);
   }
+  @Get('byNhanVien')
+  findByUser(@Paginate() query: PaginateQuery): Promise<Paginated<User>> {
+    return this.usersService.findAllByUser(query);
+  }
 
   @Get(':id')
   findOne(@Param('id') id: string) {
@@ -64,7 +68,6 @@ export class UsersController {
   update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto, @UploadedFile() avatar: Express.Multer.File, @Request() req) {
     return this.usersService.update(+id, updateUserDto, avatar, req.user);
   }
-
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.usersService.remove(+id);
@@ -77,5 +80,10 @@ export class UsersController {
   @UseInterceptors(FileInterceptor('file'))
   uploadImage(@UploadedFile() file: Express.Multer.File) {
     return this.cloudinaryService.uploadFile(file, 'Avatar');
+  }
+
+  @Get('userDetail/:id')
+  getUserDetail(@Param('id') id: number) {
+    return this.usersService.getDetailByUser(id);
   }
 }

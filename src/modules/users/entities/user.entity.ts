@@ -1,5 +1,6 @@
+import { Profile } from "src/modules/profile/entities/profile.entity";
 import { Role } from "src/modules/role/entities/role.entity";
-import { Column, Entity, JoinTable, ManyToMany, PrimaryGeneratedColumn, Table } from "typeorm";
+import { Column, Entity, JoinTable, ManyToMany, OneToOne, PrimaryGeneratedColumn, Table } from "typeorm";
 
 @Entity('users')
 export class User {
@@ -70,4 +71,6 @@ export class User {
         }
     })
     roles?: Role[];
+    @OneToOne(() => Profile, (profile) => profile.user)
+    profile: Profile;
 }

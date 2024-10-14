@@ -11,6 +11,12 @@ import * as bcrypt from 'bcrypt';
 import { ExceptionsHandler } from '@nestjs/core/exceptions/exceptions-handler';
 import { Permission } from '../permission/entities/permission.entity';
 import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
+import * as crypto from 'crypto';
+import { JwtService, TokenExpiredError } from '@nestjs/jwt';
+import * as nodemailer from 'nodemailer';
+import { MailService } from 'src/mail/mail.service';
+import { UserLogin } from 'src/types/userLogin';
+import { ConfirmPassword } from '../../auths/dto/resetPassword.dto';
 
 @Injectable()
 export class UsersService {
@@ -22,6 +28,8 @@ export class UsersService {
     @InjectRepository(Permission)
     private readonly permissionRepository: Repository<Permission>,
     private readonly cloudinaryService: CloudinaryService,
+    private readonly jwtService: JwtService,
+    private readonly mailService: MailService
   ) { }
 
   async create(createUserDto: CreateUserDto, avatar: Express.Multer.File, userLogin: any) {
@@ -141,21 +149,19 @@ export class UsersService {
         throw new BadRequestException("Email đã tồn tại trong hệ thống.");
       }
     }
-
-    const res = await this.cloudinaryService.uploadFile(avatar, 'Avatar');
-    console.log(res.url);
-    user.avatar = res.url;
+    if (avatar != undefined) {
+      const res = await this.cloudinaryService.uploadFile(avatar, 'Avatar');
+      user.avatar = res.url;
+    }
     user.email = updateUserDto.email;
     user.firstName = updateUserDto.firstName;
     user.lastName = updateUserDto.lastName;
     user.dateOfBirth = updateUserDto.dateOfBirth;
     user.phoneNumber = updateUserDto.phoneNumber;
-    user.userType = UserType.QUANTRI;
     user.updateAt = new Date();
     user.updateBy = userLogin.username;
     return this.userRepository.save(user);
   }
-
   remove(id: number) {
     return `This action removes a #${id} user`;
   }
@@ -207,4 +213,69 @@ export class UsersService {
     if (user.userType == UserType.QUANTRI) throw new BadRequestException("user detail fail.");
     return user;
   }
+  async createEmployee(createUserDto: CreateUserDto, avatar: Express.Multer.File, userLogin: UserLogin) {
+    console.log(createUserDto)
+    const saltOrRounds = 10;
+    const email = createUserDto.email;
+    const existsEmail = await this.userRepository.findOne({ where: { email: email } });
+    console.log(existsEmail)
+    if (existsEmail != null) {
+      throw new BadRequestException("Email đã tồn tại trong hệ thống.");
+    }
+    const res = await this.cloudinaryService.uploadFile(avatar, 'Avatar');
+    console.log(res.url);
+    const user = new User();
+    user.avatar = res.url;
+    // code= this.generateCode(2);
+    user.email = createUserDto.email;
+    //user.password = await bcrypt.hash(createUserDto.password, saltOrRounds);
+    user.firstName = createUserDto.firstName;
+    user.lastName = createUserDto.lastName;
+    user.dateOfBirth = createUserDto.dateOfBirth;
+    user.phoneNumber = createUserDto.phoneNumber;
+    user.userType = UserType.NHANVIEN;
+    user.createAt = new Date();
+    user.createBy = userLogin.email;
+    user.status = null;
+    user.roles = [
+      await this.roleRopository.findOne({ where: { code: "NHANVIEN" } })
+    ]
+    const code: string = this.generateRandomCode();
+    user.otp = code;
+    const token: string = this.generateVerificationToken(user.email, code);
+    await this.mailService.sendUserConfirmation(user, token);
+    return this.userRepository.save(user);
+  }
+  generateRandomCode(): string {
+    return crypto.randomBytes(3).toString('hex').toUpperCase();
+  }
+
+  generateVerificationToken(email: string, code: string): string {
+    const payload = { email, code };
+    return this.jwtService.sign(payload, {
+      secret: process.env.VALI_SECRET_KET,
+      expiresIn: process.env.VALI_EXPIRATION,
+    });
+  }
+  async verifyToken(token: string) {
+    try {
+      const decoded = this.jwtService.verify(token, { secret: process.env.VALI_SECRET_KET });
+      const { email, code } = decoded;
+      return { message: 'Token is valid. Proceed to password reset.' };
+    } catch (error) {
+      if (error instanceof TokenExpiredError) {
+        throw new BadRequestException('Token has expired');
+      } else {
+        throw new BadRequestException('Invalid token');
+      }
+    }
+  }
+
+  async findByEmail(email: string): Promise<User> {
+    return await this.userRepository.findOne({ where: { email: email } });
+  }
+  async saveUser(user: User): Promise<User> {
+    return await this.userRepository.save(user);
+  }
 }
+

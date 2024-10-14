@@ -9,6 +9,7 @@ import { AuthorizationGuard } from 'src/auths/guard/authorization.guard';
 import { Permissions } from 'src/decorator/customize';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
+import { ConfirmPassword } from '../../auths/dto/resetPassword.dto';
 
 
 @Controller('users')
@@ -35,6 +36,24 @@ export class UsersController {
   ))
   create(@Body() createUserDto: CreateUserDto, @UploadedFile() avatar: Express.Multer.File, @Request() req) {
     return this.usersService.create(createUserDto, avatar, req.user);
+  }
+
+  @Post('employee')
+  @UseInterceptors(FileInterceptor('avatar',
+    {
+      fileFilter: (req, file, callback) => {
+        if (!file.mimetype.match(/\/(jpg|jpeg|png)$/)) {
+          return callback(new BadRequestException('Only image files are allowed!'), false);
+        }
+        callback(null, true);
+      },
+      limits: {
+        fileSize: 1024 * 1024 * 50,
+      },
+    }
+  ))
+  createEmployee(@Body() createUserDto: CreateUserDto, @UploadedFile() avatar: Express.Multer.File, @Request() req) {
+    return this.usersService.createEmployee(createUserDto, avatar, req.user);
   }
 
   @Get()
@@ -72,7 +91,7 @@ export class UsersController {
   remove(@Param('id') id: string) {
     return this.usersService.remove(+id);
   }
-  @Post(':id')
+  @Get('active/:id')
   active(@Param('id') id: number) {
     return this.usersService.active(id);
   }
@@ -86,4 +105,11 @@ export class UsersController {
   getUserDetail(@Param('id') id: number) {
     return this.usersService.getDetailByUser(id);
   }
+  @Public()
+  @Get("confirm/:token")
+  confirmToken(@Param('token') token: string) {
+    return this.confirmToken(token);
+  }
+
+
 }

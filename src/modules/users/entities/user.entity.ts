@@ -17,7 +17,7 @@ export class User {
     email: string;
 
     @Column({ type: 'varchar', length: 255 })
-    password: string;
+    password?: string;
 
     @Column({ type: 'varchar', length: 255, name: 'first_name' })
     firstName: string;
@@ -57,6 +57,8 @@ export class User {
 
     @Column({ type: 'bit', default: 1 })
     status: number;
+    @Column({ type: 'varchar', name: 'otp' })
+    otp: string;
 
     @ManyToMany(() => Role, role => role.users)
     @JoinTable({

@@ -39,6 +39,7 @@ import { ProfileModule } from './modules/profile/profile.module';
 import { ExperiencesModule } from './modules/experiences/experiences.module';
 import { FamiliesModule } from './modules/families/families.module';
 import { Profile } from './modules/profile/entities/profile.entity';
+import { MailModule } from './mail/mail.module';
 
 @Module({
   imports: [
@@ -53,7 +54,21 @@ import { Profile } from './modules/profile/entities/profile.entity';
         username: configService.get<string>('DB_USERNAME'),
         password: configService.get<string>('DB_PASSWORD'),
         database: configService.get<string>('DB_DATABASE'),
-        entities: [User, Role, Permission, Modules, Degree, Major, Ethnicity, Relationship, EducationType, School, Province, District, Ward, Profile], // Cấu hình các entity
+        entities: [
+          User,
+          Role,
+          Permission,
+          Modules,
+          Degree,
+          Major,
+          Ethnicity,
+          Relationship,
+          EducationType,
+          School,
+          Province,
+          District,
+          Ward,
+          Profile],
         synchronize: false, // Đồng bộ cấu trúc database tự động, chỉ dùng trong phát triển
       }),
     }),
@@ -75,6 +90,7 @@ import { Profile } from './modules/profile/entities/profile.entity';
     ProfileModule,
     ExperiencesModule,
     FamiliesModule,
+    MailModule,
   ],
   controllers: [AppController],
   providers: [

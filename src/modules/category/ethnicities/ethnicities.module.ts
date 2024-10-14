@@ -8,5 +8,6 @@ import { Ethnicity } from './entities/ethnicity.entity';
   imports: [TypeOrmModule.forFeature([Ethnicity])],
   controllers: [EthnicitiesController],
   providers: [EthnicitiesService],
+  exports: [EthnicitiesService]
 })
 export class EthnicitiesModule { }

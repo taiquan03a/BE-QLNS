@@ -6,11 +6,12 @@ import { User } from './entities/user.entity';
 import { Role } from '../role/entities/role.entity';
 import { Permission } from '../permission/entities/permission.entity';
 import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
+import { JwtService } from '@nestjs/jwt';
 
 @Module({
   imports: [TypeOrmModule.forFeature([User, Role, Permission])],
   controllers: [UsersController],
-  providers: [UsersService, CloudinaryService],
+  providers: [UsersService, CloudinaryService, JwtService],
   exports: [UsersService]
 })
 export class UsersModule { }

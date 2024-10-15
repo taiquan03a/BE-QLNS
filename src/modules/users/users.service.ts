@@ -17,6 +17,9 @@ import * as nodemailer from 'nodemailer';
 import { MailService } from 'src/mail/mail.service';
 import { UserLogin } from 'src/types/userLogin';
 import { ConfirmPassword } from '../../auths/dto/resetPassword.dto';
+import { CreateEmployeeDto } from './dto/create-employee.dto';
+import { Profile } from '../profile/entities/profile.entity';
+import { ProfileService } from '../profile/profile.service';
 
 @Injectable()
 export class UsersService {
@@ -27,9 +30,11 @@ export class UsersService {
     private readonly roleRopository: Repository<Role>,
     @InjectRepository(Permission)
     private readonly permissionRepository: Repository<Permission>,
+    @InjectRepository(Profile)
+    private readonly profileRepository: Repository<Profile>,
     private readonly cloudinaryService: CloudinaryService,
     private readonly jwtService: JwtService,
-    private readonly mailService: MailService
+    private readonly mailService: MailService,
   ) { }
 
   async create(createUserDto: CreateUserDto, avatar: Express.Multer.File, userLogin: any) {
@@ -213,7 +218,7 @@ export class UsersService {
     if (user.userType == UserType.QUANTRI) throw new BadRequestException("user detail fail.");
     return user;
   }
-  async createEmployee(createUserDto: CreateUserDto, avatar: Express.Multer.File, userLogin: UserLogin) {
+  async createEmployee(createUserDto: CreateEmployeeDto, avatar: Express.Multer.File, userLogin: UserLogin) {
     console.log(createUserDto)
     const saltOrRounds = 10;
     const email = createUserDto.email;
@@ -228,7 +233,7 @@ export class UsersService {
     user.avatar = res.url;
     // code= this.generateCode(2);
     user.email = createUserDto.email;
-    //user.password = await bcrypt.hash(createUserDto.password, saltOrRounds);
+    user.password = null;
     user.firstName = createUserDto.firstName;
     user.lastName = createUserDto.lastName;
     user.dateOfBirth = createUserDto.dateOfBirth;
@@ -244,7 +249,19 @@ export class UsersService {
     user.otp = code;
     const token: string = this.generateVerificationToken(user.email, code);
     await this.mailService.sendUserConfirmation(user, token);
-    return this.userRepository.save(user);
+    await this.userRepository.save(user);
+    const profile = new Profile();
+    profile.first_name = createUserDto.firstName;
+    profile.last_name = createUserDto.lastName;
+    profile.phone_number = createUserDto.phoneNumber;
+    profile.email = user.email;
+    profile.date_of_birth = createUserDto.dateOfBirth;
+    profile.create_at = new Date();
+    profile.create_by = userLogin.email;
+    profile.avatar = user.avatar;
+    profile.user = user;
+    await this.profileRepository.save(profile);
+    return user;
   }
   generateRandomCode(): string {
     return crypto.randomBytes(3).toString('hex').toUpperCase();

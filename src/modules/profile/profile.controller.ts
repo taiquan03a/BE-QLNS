@@ -13,11 +13,6 @@ export class ProfileController {
     return this.profileService.create(createProfileDto);
   }
 
-  @Public()
-  @Get("confirm/:token")
-  confirmToken(@Param('token') token: string) {
-    return this.confirmToken(token);
-  }
   @Get()
   findAll() {
     return this.profileService.findAll();

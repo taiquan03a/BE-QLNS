@@ -7,9 +7,13 @@ import { Role } from '../role/entities/role.entity';
 import { Permission } from '../permission/entities/permission.entity';
 import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 import { JwtService } from '@nestjs/jwt';
+import { ProfileService } from '../profile/profile.service';
+import { Profile } from '../profile/entities/profile.entity';
+import { EthnicitiesService } from '../category/ethnicities/ethnicities.service';
+import { Ethnicity } from '../category/ethnicities/entities/ethnicity.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User, Role, Permission])],
+  imports: [TypeOrmModule.forFeature([User, Role, Permission, Profile])],
   controllers: [UsersController],
   providers: [UsersService, CloudinaryService, JwtService],
   exports: [UsersService]

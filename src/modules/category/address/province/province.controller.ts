@@ -18,6 +18,11 @@ export class ProvinceController {
     return await this.provinceService.findAll(query);
   }
 
+  @Get('getByDistrict/:districtId')
+  findByDistrict(@Param('districtId') districtId: number) {
+    return this.provinceService.findByDistrict(districtId);
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.provinceService.findOne(+id);

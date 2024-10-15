@@ -12,5 +12,6 @@ import { DistrictService } from '../district/district.service';
   imports: [TypeOrmModule.forFeature([Province, District, Ward])],
   controllers: [WardController],
   providers: [WardService, DistrictService, ProvinceService],
+  exports: [WardService]
 })
 export class WardModule { }

@@ -5,10 +5,12 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { District } from './entities/district.entity';
 import { ProvinceService } from '../province/province.service';
 import { Province } from '../province/entities/province.entity';
+import { WardService } from '../ward/ward.service';
+import { Ward } from '../ward/entities/ward.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([District, Province]),
+    TypeOrmModule.forFeature([District, Province, Ward]),
   ],
   controllers: [DistrictController],
   providers: [DistrictService, ProvinceService],

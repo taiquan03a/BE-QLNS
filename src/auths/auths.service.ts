@@ -60,6 +60,7 @@ export class AuthsService {
     if (user.status != null) throw new BadRequestException('acc is active');
     if (confirm.confirmPassword != confirm.password) throw new BadRequestException('acc is active')
     user.password = await bcrypt.hash(confirm.password, 10);
+    user.status = 1;
     this.usersService.saveUser(user);
   }
 }

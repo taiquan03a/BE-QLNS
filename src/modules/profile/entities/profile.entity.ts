@@ -1,6 +1,7 @@
 import { Ethnicity } from 'src/modules/category/ethnicities/entities/ethnicity.entity';
+import { Education } from 'src/modules/education/entities/education.entity';
 import { User } from 'src/modules/users/entities/user.entity';
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn, OneToOne } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn, OneToOne, OneToMany } from 'typeorm';
 
 @Entity('profile')
 export class Profile {
@@ -24,6 +25,9 @@ export class Profile {
 
     @Column({ length: 255 })
     last_name: string;
+
+    @Column()
+    sex: number;
 
     @Column('date')
     date_of_birth: Date;
@@ -74,4 +78,6 @@ export class Profile {
     @OneToOne(() => User, (user) => user.profile)
     @JoinColumn({ name: 'user_id' })
     user: User;
+    @OneToMany(() => Education, (educations) => educations.profile)
+    educations: Education[];
 }

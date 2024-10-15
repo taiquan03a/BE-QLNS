@@ -10,6 +10,8 @@ import { paginate, Paginate, Paginated, PaginateQuery } from 'nestjs-paginate';
 import { plainToInstance } from 'class-transformer';
 import { DistrictDto } from './dto/district.dto';
 import { SortBy } from 'nestjs-paginate/lib/helper';
+import { WardService } from '../ward/ward.service';
+import { Ward } from '../ward/entities/ward.entity';
 
 @Injectable()
 export class DistrictService {
@@ -17,6 +19,8 @@ export class DistrictService {
     @InjectRepository(District)
     private readonly districtRepository: Repository<District>,
     private readonly provinceService: ProvinceService,
+    @InjectRepository(Ward)
+    private readonly wardRepository: Repository<Ward>
   ) { }
   async create(createDistrictDto: CreateDistrictDto, user: UserLogin) {
     const district = new District();
@@ -86,6 +90,10 @@ export class DistrictService {
     } catch (e) {
       throw new BadRequestException("Fail!!");
     }
+  }
+  async findDistrictByWard(wardId: number) {
+    const ward: Ward = await this.wardRepository.findOne({ where: { id: wardId }, relations: ['district'] });
+    return ward;
   }
 
   remove(id: number) {

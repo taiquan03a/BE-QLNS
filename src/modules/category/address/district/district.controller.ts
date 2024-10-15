@@ -22,7 +22,10 @@ export class DistrictController {
   async findByUser(@Param('provinceId') provinceId: number) {
     return this.districtService.findAllByUser(provinceId);
   }
-
+  @Get('getByWard/:wardId')
+  getByWard(@Param('wardId') wardId: number) {
+    return this.districtService.findDistrictByWard(wardId);
+  }
   @Get(':id')
   findOne(@Param('id') id: string) {
     console.log("id->", id);

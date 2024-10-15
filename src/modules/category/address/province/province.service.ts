@@ -5,12 +5,15 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Province } from './entities/province.entity';
 import { Repository } from 'typeorm';
 import { FilterOperator, FilterSuffix, paginate, Paginated, PaginateQuery } from 'nestjs-paginate';
+import { District } from '../district/entities/district.entity';
 
 @Injectable()
 export class ProvinceService {
   constructor(
     @InjectRepository(Province)
-    private readonly provinceRepository: Repository<Province>
+    private readonly provinceRepository: Repository<Province>,
+    @InjectRepository(District)
+    private readonly districtRepository: Repository<District>
   ) { }
   async create(categoryDto: CategoryDto, user: UserLogin) {
     const relationship = new Province();
@@ -49,6 +52,10 @@ export class ProvinceService {
     })
   }
 
+  async findByDistrict(districtId: number) {
+    const district: District = await this.districtRepository.findOne({ where: { id: districtId }, relations: ['province'] });
+    return district.province;
+  }
   async findOne(id: number) {
     return await this.provinceRepository.findOne({ where: { id } });
   }

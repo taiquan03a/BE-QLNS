@@ -10,6 +10,7 @@ import { Permissions } from 'src/decorator/customize';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 import { ConfirmPassword } from '../../auths/dto/resetPassword.dto';
+import { CreateEmployeeDto } from './dto/create-employee.dto';
 
 
 @Controller('users')
@@ -52,7 +53,7 @@ export class UsersController {
       },
     }
   ))
-  createEmployee(@Body() createUserDto: CreateUserDto, @UploadedFile() avatar: Express.Multer.File, @Request() req) {
+  createEmployee(@Body() createUserDto: CreateEmployeeDto, @UploadedFile() avatar: Express.Multer.File, @Request() req) {
     return this.usersService.createEmployee(createUserDto, avatar, req.user);
   }
 

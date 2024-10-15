@@ -8,10 +8,6 @@ import { UsersService } from '../users/users.service';
 import { User } from '../users/entities/user.entity';
 import { Ethnicity } from '../category/ethnicities/entities/ethnicity.entity';
 import { EthnicitiesService } from '../category/ethnicities/ethnicities.service';
-import * as crypto from 'crypto';
-import { JwtService, TokenExpiredError } from '@nestjs/jwt';
-import * as nodemailer from 'nodemailer';
-import { MailService } from 'src/mail/mail.service';
 
 @Injectable()
 export class ProfileService {
@@ -20,45 +16,26 @@ export class ProfileService {
     private readonly profileRepository: Repository<Profile>,
     private readonly userService: UsersService,
     private readonly ethnicityService: EthnicitiesService,
-    private readonly jwtService: JwtService,
-    private readonly mailService: MailService
   ) { }
   async create(createProfileDto: CreateProfileDto) {
     const user: User = await this.userService.findOne(createProfileDto.userId);
     if (user == null) throw new NotFoundException();
     const ethnicity: Ethnicity = await this.ethnicityService.findOne(createProfileDto.ethnicityId);
     if (ethnicity == null) throw new NotFoundException();
-    const profile = new Profile();
-    const code = this.generateRandomCode();
-    const token = this.generateVerificationToken(user.email, code);
-    console.log(token);
-    await this.mailService.sendUserConfirmation(user, token);
-    return 'This action adds a new profile';
-  }
-  async verifyToken(token: string) {
-    try {
-      const decoded = this.jwtService.verify(token, { secret: process.env.VALI_SECRET_KET });
-      const { email, code } = decoded;
-      return { message: 'Token is valid. Proceed to password reset.' };
-    } catch (error) {
-      if (error instanceof TokenExpiredError) {
-        throw new BadRequestException('Token has expired');
-      } else {
-        throw new BadRequestException('Invalid token');
-      }
-    }
-  }
-  generateRandomCode(): string {
-    return crypto.randomBytes(3).toString('hex').toUpperCase();
+    const profile: Profile = await this.profileRepository.findOne({ where: { user: user } });
+    profile.sex = createProfileDto.sex;
+    profile.cccd = createProfileDto.cccd;
+    profile.hometown_detail = createProfileDto.hometown_detail;
+    profile.hometown_ward_id = createProfileDto.hometown_ward_id;
+    profile.address_now_detail = createProfileDto.address_now_detail;
+    profile.address_now_ward_id = createProfileDto.address_now_ward_id;
+    profile.permanent_address_ward_id = createProfileDto.permanent_address_ward_id;
+    profile.permanent_address_detail = createProfileDto.permanent_address_detail;
+    profile.ethnicity = await this.ethnicityService.findOne(createProfileDto.ethnicityId);
+    profile.education_level = createProfileDto.education_level;
+    return await this.profileRepository.save(profile);
   }
 
-  generateVerificationToken(email: string, code: string): string {
-    const payload = { email, code };
-    return this.jwtService.sign(payload, {
-      secret: process.env.VALI_SECRET_KET,
-      expiresIn: process.env.VALI_EXPIRATION,
-    });
-  }
   findAll() {
     return `This action returns all profile`;
   }
@@ -66,7 +43,7 @@ export class ProfileService {
   async findOne(id: number) {
     const user: User = await this.userService.findOne(id);
     if (user == null) throw new NotFoundException();
-    return await this.profileRepository.findOne({ where: { user: user } })
+    return await this.profileRepository.findOne({ where: { user: user }, relations: ['ethnicity'] });
   }
 
   update(id: number, updateProfileDto: UpdateProfileDto) {
@@ -75,5 +52,8 @@ export class ProfileService {
 
   remove(id: number) {
     return `This action removes a #${id} profile`;
+  }
+  async save(profile: Profile) {
+    await this.profileRepository.save(profile);
   }
 }

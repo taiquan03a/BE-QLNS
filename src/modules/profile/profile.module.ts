@@ -16,5 +16,6 @@ import { JwtModule } from '@nestjs/jwt';
   imports: [TypeOrmModule.forFeature([Profile, User, Role, Permission, Ethnicity]), JwtModule],
   controllers: [ProfileController],
   providers: [ProfileService, UsersService, CloudinaryService, EthnicitiesService],
+  exports: [ProfileService]
 })
 export class ProfileModule { }

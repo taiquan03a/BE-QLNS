@@ -40,6 +40,8 @@ import { ExperiencesModule } from './modules/experiences/experiences.module';
 import { FamiliesModule } from './modules/families/families.module';
 import { Profile } from './modules/profile/entities/profile.entity';
 import { MailModule } from './mail/mail.module';
+import { EducationModule } from './modules/education/education.module';
+import { Education } from './modules/education/entities/education.entity';
 
 @Module({
   imports: [
@@ -68,7 +70,9 @@ import { MailModule } from './mail/mail.module';
           Province,
           District,
           Ward,
-          Profile],
+          Profile,
+          Education
+        ],
         synchronize: false, // Đồng bộ cấu trúc database tự động, chỉ dùng trong phát triển
       }),
     }),
@@ -91,6 +95,7 @@ import { MailModule } from './mail/mail.module';
     ExperiencesModule,
     FamiliesModule,
     MailModule,
+    EducationModule,
   ],
   controllers: [AppController],
   providers: [

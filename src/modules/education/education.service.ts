@@ -78,8 +78,17 @@ export class EducationService {
     return `This action returns a #${id} education`;
   }
 
-  update(id: number, updateEducationDto: UpdateEducationDto) {
-    return `This action updates a #${id} education`;
+  async update(updateEducationDto: UpdateEducationDto, user: UserLogin) {
+    const education: Education = await this.educationRepository.findOne({ where: { id: updateEducationDto.profileId } });
+    education.begin_time = updateEducationDto.beginTime;
+    education.end_time = updateEducationDto.endTime;
+    education.school = await this.schoolRepository.findOne({ where: { id: updateEducationDto.schoolId } });
+    education.major = await this.majorRepository.findOne({ where: { id: updateEducationDto.majorId } });
+    education.degree = await this.degreeRepository.findOne({ where: { id: updateEducationDto.degreeId } });
+    education.update_at = new Date();
+    education.update_by = user.email;
+    education.educationType = await this.educationTypeRepository.findOne({ where: { id: updateEducationDto.educationTypeId } });
+    return await this.educationRepository.save(education);
   }
 
   remove(id: number) {

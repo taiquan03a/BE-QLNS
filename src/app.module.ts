@@ -42,6 +42,7 @@ import { Profile } from './modules/profile/entities/profile.entity';
 import { MailModule } from './mail/mail.module';
 import { EducationModule } from './modules/education/education.module';
 import { Education } from './modules/education/entities/education.entity';
+import { Family } from './modules/families/entities/family.entity';
 
 @Module({
   imports: [
@@ -71,7 +72,8 @@ import { Education } from './modules/education/entities/education.entity';
           District,
           Ward,
           Profile,
-          Education
+          Education,
+          Family
         ],
         synchronize: false, // Đồng bộ cấu trúc database tự động, chỉ dùng trong phát triển
       }),

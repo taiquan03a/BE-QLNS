@@ -1,20 +1,22 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Request } from '@nestjs/common';
 import { FamiliesService } from './families.service';
 import { CreateFamilyDto } from './dto/create-family.dto';
 import { UpdateFamilyDto } from './dto/update-family.dto';
+import { Paginate, Paginated, PaginateQuery } from 'nestjs-paginate';
+import { Family } from './entities/family.entity';
 
 @Controller('families')
 export class FamiliesController {
-  constructor(private readonly familiesService: FamiliesService) {}
+  constructor(private readonly familiesService: FamiliesService) { }
 
   @Post()
-  create(@Body() createFamilyDto: CreateFamilyDto) {
-    return this.familiesService.create(createFamilyDto);
+  create(@Body() createFamilyDto: CreateFamilyDto, @Request() req) {
+    return this.familiesService.create(createFamilyDto, req.user);
   }
 
-  @Get()
-  findAll() {
-    return this.familiesService.findAll();
+  @Get(':userId')
+  async findAll(@Paginate() query: PaginateQuery, @Param('userId') userId: number): Promise<Paginated<Family>> {
+    return this.familiesService.findAll(query, userId);
   }
 
   @Get(':id')

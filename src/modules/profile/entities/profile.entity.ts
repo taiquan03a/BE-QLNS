@@ -1,5 +1,6 @@
 import { Ethnicity } from 'src/modules/category/ethnicities/entities/ethnicity.entity';
 import { Education } from 'src/modules/education/entities/education.entity';
+import { Family } from 'src/modules/families/entities/family.entity';
 import { User } from 'src/modules/users/entities/user.entity';
 import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn, OneToOne, OneToMany } from 'typeorm';
 
@@ -80,4 +81,6 @@ export class Profile {
     user: User;
     @OneToMany(() => Education, (educations) => educations.profile)
     educations: Education[];
+    @OneToMany(() => Family, (families) => families.profile)
+    families: Family[];
 }

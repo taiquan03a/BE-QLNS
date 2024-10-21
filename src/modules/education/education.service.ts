@@ -28,7 +28,6 @@ export class EducationService {
     private readonly educationTypeRepository: Repository<EducationType>,
     @InjectRepository(Profile)
     private readonly profileRepository: Repository<Profile>,
-
   ) { }
 
 

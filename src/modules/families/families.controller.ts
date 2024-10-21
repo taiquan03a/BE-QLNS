@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Request } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Request, Put } from '@nestjs/common';
 import { FamiliesService } from './families.service';
 import { CreateFamilyDto } from './dto/create-family.dto';
 import { UpdateFamilyDto } from './dto/update-family.dto';
@@ -24,9 +24,9 @@ export class FamiliesController {
     return this.familiesService.findOne(+id);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateFamilyDto: UpdateFamilyDto) {
-    return this.familiesService.update(+id, updateFamilyDto);
+  @Put()
+  update(@Body() updateFamilyDto: UpdateFamilyDto, @Request() req) {
+    return this.familiesService.update(updateFamilyDto, req.user);
   }
 
   @Delete(':id')

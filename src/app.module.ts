@@ -43,6 +43,7 @@ import { MailModule } from './mail/mail.module';
 import { EducationModule } from './modules/education/education.module';
 import { Education } from './modules/education/entities/education.entity';
 import { Family } from './modules/families/entities/family.entity';
+import { Experience } from './modules/experiences/entities/experience.entity';
 
 @Module({
   imports: [
@@ -73,7 +74,8 @@ import { Family } from './modules/families/entities/family.entity';
           Ward,
           Profile,
           Education,
-          Family
+          Family,
+          Experience
         ],
         synchronize: false, // Đồng bộ cấu trúc database tự động, chỉ dùng trong phát triển
       }),

@@ -20,6 +20,8 @@ export class FamiliesService {
     @InjectRepository(Profile)
     private readonly profileRepository: Repository<Profile>
   ) { }
+
+
   async create(createFamilyDto: CreateFamilyDto, user: UserLogin) {
     const userId = createFamilyDto.profile_id;
     const family = new Family();
@@ -48,6 +50,7 @@ export class FamiliesService {
     if (profile == null) throw new NotFoundException();
     const families: Family[] = await this.familyRepository
       .createQueryBuilder('families')
+      .leftJoinAndSelect('families.relationship', 'relationship')
       .where('families.profile_id = :profileId', { profileId: profile.id })
       .getMany()
     for (const family of families) {
@@ -56,7 +59,7 @@ export class FamiliesService {
       familyTable.full_name = family.full_name;
       familyTable.job = family.job;
       familyTable.relationship = family.relationship.name;
-
+      familyTable.address = family.address_detail;
     }
     const queryBuilder = this.familyRepository
       .createQueryBuilder('families')
@@ -75,8 +78,23 @@ export class FamiliesService {
     return `This action returns a #${id} family`;
   }
 
-  update(id: number, updateFamilyDto: UpdateFamilyDto) {
-    return `This action updates a #${id} family`;
+  async update(updateFamilyDto: UpdateFamilyDto, user: UserLogin) {
+    const family = await this.familyRepository.findOne({ where: { id: updateFamilyDto.profile_id } });
+    family.full_name = updateFamilyDto.full_name;
+    family.address_detail = updateFamilyDto.address_detail;
+    family.job = updateFamilyDto.job;
+    family.year_of_birth = updateFamilyDto.year_of_birth;
+    family.relationship = await this.relationshipRepository.findOne({ where: { id: updateFamilyDto.relationshipId } });
+    family.updateAt = new Date();
+    family.update_by = user.email;
+    family.ward_id = updateFamilyDto.ward_id;
+    // const profile = await this.profileRepository
+    //   .createQueryBuilder('profile')
+    //   .where('profile.user_id = :userId', { userId })
+    //   .limit(1)
+    //   .getMany()
+    // family.profile = profile[0];
+    return await this.familyRepository.save(family);
   }
 
   remove(id: number) {

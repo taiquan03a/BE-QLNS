@@ -19,6 +19,11 @@ export class EducationController {
     return this.educationService.findAll(query, userId);
   }
 
+  @Get('/user/getByUser')
+  async findAllByUser(@Paginate() query: PaginateQuery, @Request() req): Promise<Paginated<Education>> {
+    return this.educationService.findAllByUser(query, req.user);
+  }
+
 
   @Put()
   update(@Body() updateEducationDto: UpdateEducationDto, @Request() req) {

@@ -72,6 +72,27 @@ export class EducationService {
       defaultLimit: 5,
     });
   }
+  async findAllByUser(query: PaginateQuery, user: UserLogin): Promise<Paginated<Education>> {
+    const profile: Profile = await this.profileRepository
+      .createQueryBuilder('profile')
+      .where('profile.user_id = :userId', { userId: user.id })
+      .getOne()
+    if (profile == null) throw new NotFoundException();
+    const queryBuilder = this.educationRepository
+      .createQueryBuilder('education')
+      .leftJoinAndSelect('education.school', 'school')
+      .leftJoinAndSelect('education.degree', 'degree')
+      .leftJoinAndSelect('education.educationType', 'educationType')
+      .leftJoinAndSelect('education.major', 'major')
+      .where('education.profile_id = :profileId', { profileId: profile.id });
+
+    return paginate(query, queryBuilder, {
+      sortableColumns: ['id', 'begin_time', 'end_time', 'school.name', 'major.name', 'educationType.name', 'degree.name'],
+      searchableColumns: ['id', 'begin_time', 'end_time', 'school.name', 'major.name', 'educationType.name', 'degree.name'],
+      defaultSortBy: [['id', 'ASC']],
+      defaultLimit: 5,
+    });
+  }
 
   findOne(id: number) {
     return `This action returns a #${id} education`;

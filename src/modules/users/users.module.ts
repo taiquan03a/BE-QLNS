@@ -11,9 +11,10 @@ import { ProfileService } from '../profile/profile.service';
 import { Profile } from '../profile/entities/profile.entity';
 import { EthnicitiesService } from '../category/ethnicities/ethnicities.service';
 import { Ethnicity } from '../category/ethnicities/entities/ethnicity.entity';
+import { ProfileRequest } from 'src/request/profile-request/entities/profile-request.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User, Role, Permission, Profile])],
+  imports: [TypeOrmModule.forFeature([User, Role, Permission, Profile, ProfileRequest])],
   controllers: [UsersController],
   providers: [UsersService, CloudinaryService, JwtService],
   exports: [UsersService]

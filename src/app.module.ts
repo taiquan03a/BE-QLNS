@@ -44,6 +44,16 @@ import { EducationModule } from './modules/education/education.module';
 import { Education } from './modules/education/entities/education.entity';
 import { Family } from './modules/families/entities/family.entity';
 import { Experience } from './modules/experiences/entities/experience.entity';
+import { ProfileRequestModule } from './request/profile-request/profile-request.module';
+import { EducationRequestModule } from './request/education-request/education-request.module';
+import { FamilyRequestModule } from './request/family-request/family-request.module';
+import { ExperiencesRequestModule } from './request/experiences-request/experiences-request.module';
+import { ProfileRequest } from './request/profile-request/entities/profile-request.entity';
+import { EducationRequest } from './request/education-request/entities/education-request.entity';
+import { FamilyRequest } from './request/family-request/entities/family-request.entity';
+import { ExperiencesRequest } from './request/experiences-request/entities/experiences-request.entity';
+import { StatusRequestModule } from './request/status-request/status-request.module';
+import { StatusRequest } from './request/status-request/entities/status-request.entity';
 
 @Module({
   imports: [
@@ -58,25 +68,32 @@ import { Experience } from './modules/experiences/entities/experience.entity';
         username: configService.get<string>('DB_USERNAME'),
         password: configService.get<string>('DB_PASSWORD'),
         database: configService.get<string>('DB_DATABASE'),
-        entities: [
-          User,
-          Role,
-          Permission,
-          Modules,
-          Degree,
-          Major,
-          Ethnicity,
-          Relationship,
-          EducationType,
-          School,
-          Province,
-          District,
-          Ward,
-          Profile,
-          Education,
-          Family,
-          Experience
-        ],
+        entities:
+          // [
+          //   User,
+          //   Role,
+          //   Permission,
+          //   Modules,
+          //   Degree,
+          //   Major,
+          //   Ethnicity,
+          //   Relationship,
+          //   EducationType,
+          //   School,
+          //   Province,
+          //   District,
+          //   Ward,
+          //   Profile,
+          //   Education,
+          //   Family,
+          //   Experience,
+          //   ProfileRequest,
+          //   EducationRequest,
+          //   FamilyRequest,
+          //   ExperiencesRequest,
+          //   StatusRequest,
+          // ],
+          [__dirname + '/**/*.entity{.ts,.js}'],
         synchronize: false, // Đồng bộ cấu trúc database tự động, chỉ dùng trong phát triển
       }),
     }),
@@ -100,6 +117,11 @@ import { Experience } from './modules/experiences/entities/experience.entity';
     FamiliesModule,
     MailModule,
     EducationModule,
+    ProfileRequestModule,
+    EducationRequestModule,
+    FamilyRequestModule,
+    ExperiencesRequestModule,
+    StatusRequestModule,
   ],
   controllers: [AppController],
   providers: [

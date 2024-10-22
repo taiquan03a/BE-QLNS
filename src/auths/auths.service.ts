@@ -31,10 +31,12 @@ export class AuthsService {
     const payload = {
       id: user.id,
       email: user.email,
-      phoneNumber: user.phoneNumber
+      phoneNumber: user.phoneNumber,
+      userType: user.userType,
     };
     return {
       access_token: await this.jwtService.signAsync(payload),
+      user_type: user.userType
     };
   }
   async verifyToken(token: string) {

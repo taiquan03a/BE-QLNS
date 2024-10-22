@@ -74,6 +74,38 @@ export class FamiliesService {
     });
   }
 
+  async findAllByUser(query: PaginateQuery, user: UserLogin): Promise<Paginated<Family>> {
+    const profile: Profile = await this.profileRepository
+      .createQueryBuilder('profile')
+      .where('profile.user_id = :userId', { userId: user.id })
+      .getOne()
+    if (profile == null) throw new NotFoundException();
+    const families: Family[] = await this.familyRepository
+      .createQueryBuilder('families')
+      .leftJoinAndSelect('families.relationship', 'relationship')
+      .where('families.profile_id = :profileId', { profileId: profile.id })
+      .getMany()
+    for (const family of families) {
+      const familyTable = new FamilyTable();
+      familyTable.id = family.id;
+      familyTable.full_name = family.full_name;
+      familyTable.job = family.job;
+      familyTable.relationship = family.relationship.name;
+      familyTable.address = family.address_detail;
+    }
+    const queryBuilder = this.familyRepository
+      .createQueryBuilder('families')
+      .leftJoinAndSelect('families.relationship', 'relationship')
+      .where('families.profile_id = :profileId', { profileId: profile.id });
+
+    return paginate(query, queryBuilder, {
+      sortableColumns: ['id', 'relationship.name', 'full_name', 'year_of_birth', 'job'],
+      searchableColumns: ['id', 'relationship.name', 'full_name', 'year_of_birth', 'job'],
+      defaultSortBy: [['id', 'ASC']],
+      defaultLimit: 5,
+    });
+  }
+
   findOne(id: number) {
     return `This action returns a #${id} family`;
   }

@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Request, Put } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Request, Put, Req } from '@nestjs/common';
 import { FamiliesService } from './families.service';
 import { CreateFamilyDto } from './dto/create-family.dto';
 import { UpdateFamilyDto } from './dto/update-family.dto';
@@ -17,6 +17,10 @@ export class FamiliesController {
   @Get(':userId')
   async findAll(@Paginate() query: PaginateQuery, @Param('userId') userId: number): Promise<Paginated<Family>> {
     return this.familiesService.findAll(query, userId);
+  }
+  @Get('user/getByUser')
+  async findAllByUser(@Paginate() query: PaginateQuery, @Request() req): Promise<Paginated<Family>> {
+    return this.familiesService.findAllByUser(query, req.user);
   }
 
   @Get(':id')

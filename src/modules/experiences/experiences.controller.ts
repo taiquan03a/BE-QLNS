@@ -18,6 +18,10 @@ export class ExperiencesController {
   async findAll(@Paginate() query: PaginateQuery, @Param('userId') userId: number): Promise<Paginated<Experience>> {
     return this.experiencesService.findAll(query, userId);
   }
+  @Get('user/getByUser')
+  async findAllByUser(@Paginate() query: PaginateQuery, @Request() req): Promise<Paginated<Experience>> {
+    return this.experiencesService.findAllByUser(query, req.user);
+  }
 
   @Get(':id')
   findOne(@Param('id') id: string) {

@@ -3,11 +3,13 @@ import { CreateProfileDto } from './dto/create-profile.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Profile } from './entities/profile.entity';
-import { Repository } from 'typeorm';
+import { ProxyOptions, Repository } from 'typeorm';
 import { UsersService } from '../users/users.service';
 import { User } from '../users/entities/user.entity';
 import { Ethnicity } from '../category/ethnicities/entities/ethnicity.entity';
 import { EthnicitiesService } from '../category/ethnicities/ethnicities.service';
+import { UserLogin } from 'src/types/userLogin';
+import { UserType } from '../users/enum/user.enum';
 
 @Injectable()
 export class ProfileService {
@@ -55,5 +57,11 @@ export class ProfileService {
   }
   async save(profile: Profile) {
     await this.profileRepository.save(profile);
+  }
+
+  async getByUser(userLogin: UserLogin) {
+    const user: User = await this.userService.findOne(userLogin.id);
+    if (user == null) throw new NotFoundException();
+    return await this.profileRepository.findOne({ where: { user: user }, relations: ['ethnicity'] });
   }
 }

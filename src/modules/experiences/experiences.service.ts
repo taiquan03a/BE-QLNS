@@ -52,6 +52,24 @@ export class ExperiencesService {
     });
   }
 
+  async findAllByUser(query: PaginateQuery, user: UserLogin): Promise<Paginated<Experience>> {
+    const profile: Profile = await this.profileRepository
+      .createQueryBuilder('profile')
+      .where('profile.user_id = :userId', { userId: user.id })
+      .getOne()
+    if (profile == null) throw new NotFoundException();
+    const queryBuilder = this.experienceRepository
+      .createQueryBuilder('experiences')
+      .where('experiences.profile_id = :profileId', { profileId: profile.id });
+
+    return paginate(query, queryBuilder, {
+      sortableColumns: ['id', 'begin_time', 'end_time',],
+      searchableColumns: ['id', 'begin_time', 'end_time',],
+      defaultSortBy: [['id', 'ASC']],
+      defaultLimit: 5,
+    });
+  }
+
   findOne(id: number) {
     return `This action returns a #${id} experience`;
   }
